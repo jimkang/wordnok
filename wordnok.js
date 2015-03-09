@@ -10,7 +10,7 @@ function createWordnok(opts) {
   if (!opts || !opts.apiKey) {
     throw new Error('createWordnok is missing the Wordnik API key.');
   }
-  if (!opts && !opts.logger) {
+  if (opts && opts.logger) {
     logger = opts.logger;
   }
 
