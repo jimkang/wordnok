@@ -17,6 +17,11 @@ var randomWordsQueryParams = {
   limit: 10
 };
 
+var relatedWordsQueryParams = {
+  useCanonical: true,
+  limitPerRelationshipType: 10
+};
+
 var nonDeterministicMethods = [
   'getTopic',
   'getRandomWords'
@@ -151,7 +156,6 @@ function createWordnok(opts) {
     });
   }
 
-
   function getWordFrequency(word, done) {
     var url = wordURLPrefix + encodeURIComponent(word) + frequencyURLPostfix;
     request(url, function parseReply(error, response, body) {
@@ -178,6 +182,49 @@ function createWordnok(opts) {
       }
     });
   }  
+
+  function getRelatedWords(relatedWordsOpts, done) {
+    var customParams = {};
+    if (relatedWordsOpts && relatedWordsOpts.customParams) {
+      customParams = relatedWordsOpts.customParams;
+    }
+    var word;
+    var customParams = {};
+
+    if (relatedWordsOpts) {
+      if (relatedWordsOpts.customParams) {
+        customParams = relatedWordsOpts.customParams;
+      }
+      word = relatedWordsOpts.word;
+    }
+
+    if (!word) {
+      throw new Error('No word provided to getRelatedWords.')
+    }
+    customParams.api_key = opts.apiKey;
+
+    request(
+      {
+        url: 'http://api.wordnik.com:80/v4/word.json/' + word + '/relatedWords',
+        qs: _.defaults(customParams, relatedWordsQueryParams)
+      },
+      parseWordnikReply
+    );
+
+    function parseWordnikReply(error, response, body) {
+      if (error) {
+        done(error);
+      }
+      else {
+        var parsed = parseBody(body, response.url);
+        var wordDict;
+        if (Array.isArray(parsed)) {
+          wordDict = arrangeRelatedWordsResponse(parsed);
+        }
+        done(error, wordDict);
+      }
+    }
+  }
 
   function runOperationOverWords(operation, words, done) {
     var q = queue();
@@ -213,7 +260,8 @@ function createWordnok(opts) {
     getPartsOfSpeechForMultipleWords: getPartsOfSpeechForMultipleWords,
     getPartsOfSpeech: getPartsOfSpeech,
     getWordFrequency: getWordFrequency,
-    getWordFrequencies: getWordFrequencies
+    getWordFrequencies: getWordFrequencies,
+    getRelatedWords: getRelatedWords
   };
 
   if (memoizeServerPort) {
@@ -228,6 +276,15 @@ function createWordnok(opts) {
   }
 
   return wordnok;
+}
+
+function arrangeRelatedWordsResponse(wordnikArray) {
+  var dict = {};
+  // Assumption: No two array members will have the same relationshipType.
+  wordnikArray.forEach(function addToDict(group) {
+    dict[group.relationshipType] = group.words;
+  });
+  return dict;
 }
 
 module.exports = {

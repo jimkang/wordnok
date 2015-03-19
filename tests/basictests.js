@@ -201,6 +201,55 @@ test('Get word frequencies from Wordnik', function testGetWordFrequencies(t) {
   );
 });
 
+test('Get related words', function testRelatedWords(t) {
+  t.plan(2);
+  var wordnok = setUpWordnok();
+
+  var expectedDictionary = {
+    hypernym: [
+      "aggressor",
+      "attacker",
+      "assailant",
+      "assaulter"
+    ],
+    hyponym: [
+      "bullyboy",
+      "muscle",
+      "tough guy",
+      "skinhead",
+      "plug-ugly",
+      "muscleman"
+    ],
+    synonym: [
+      "chav",
+      "tearaway",
+      "hooligan"
+    ],
+    "same-context": [
+      "choked-off",
+      "ftu",
+      "newsies",
+      "typographic",
+      "afterall",
+      "hed",
+      "half-animal",
+      "oxy-",
+      "goalmouth",
+      "??"
+    ]
+  };
+
+  wordnok.getRelatedWords(
+    {
+      word: 'yob'
+    },
+    function checkResult(error, words) {
+      t.ok(!error, 'Shouldn\'t get error.');
+      t.deepEqual(words, expectedDictionary);
+    }
+  );
+});
+
 
 test('Use memoized cache server', function memoized(t) {
   // WARNING: This test does not terminate. You have to ctrl+C it.
