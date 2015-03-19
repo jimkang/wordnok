@@ -32,7 +32,7 @@ test('Get random words via Wordnik',
 
     wordnok.getRandomWords(null, function checkWords(error, words) {
       t.ok(!error, 'Shouldn\'t get error.');
-      t.equal(typeof words, 'string');
+      t.ok(Array.isArray(words));
       t.ok(words.length > 0);
       // console.log(words);
     });
