@@ -1,6 +1,9 @@
 var test = require('tape');
-var createWordnok = require('../wordnok');
+var wordnokLib = require('../wordnok');
+var createWordnok = wordnokLib.createWordnok;
+var startCacheServer = wordnokLib.startCacheServer;
 var config = require('../config');
+var callBackOnNextTick = require('conform-async').callBackOnNextTick;
 
 function setUpWordnok() {
   return createWordnok({
@@ -182,4 +185,55 @@ test('Get word frequencies from Wordnik', function testGetWordFrequencies(t) {
       // console.log(frequencies);
     }
   );
+});
+
+
+test('Use memoized cache server', function memoized(t) {
+  // WARNING: This test does not terminate. You have to ctrl+C it.
+  t.plan(11);
+
+  startCacheServer(
+    {
+      port: 4040,
+      dbPath: 'testcache.db'
+    },
+    runTest
+  );
+
+  function runTest() {
+    var requestCallCount = 0;
+    var wordnok = createWordnok({
+      apiKey: config.wordnikAPIKey,
+      memoizeServerPort: 4040,
+      request: function mockRequest(url, done) {
+        requestCallCount += 1;
+        t.ok(requestCallCount === 1, 'request is called only once.');
+
+        callBackOnNextTick(done, null, null, JSON.stringify([
+          {
+            partOfSpeech: 'noun'
+          },
+          {
+            partOfSpeech: 'participle'
+          }
+        ]));
+      }
+    });
+
+    var count = 0;
+
+    for (var i = 0; i < 5; ++i) {
+      wordnok.getPartsOfSpeech('students', 
+        function checkResult(error, parts) {
+          count += 1;
+          t.ok(!error, 'Shouldn\'t get error.');
+          t.deepEqual(
+            parts, 
+            ['noun', 'participle'],
+            'Gets the expected parts of speech for the ' + count + 'th time.'
+          );
+        }
+      );
+    }
+  }
 });

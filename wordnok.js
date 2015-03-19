@@ -1,17 +1,41 @@
-var request = require('request');
+var requestModule = require('request');
 var _ = require('lodash');
 var queue = require('queue-async');
 var isJSON = require('./isjson');
 var createIsCool = require('iscool');
+var multilevelCacheTools = require('multilevel-cache-tools');
+
+function startCacheServer(opts, done) {
+  multilevelCacheTools.server.create(
+    {
+      dbPath: opts.dbPath,
+      port: opts.port
+    },
+    function onStart() {
+      console.log('Cache server started at port ' + opts.port + '.');
+      done();
+    }
+  );
+}
 
 function createWordnok(opts) {
   var logger = console;
+  var request = requestModule;
+  var memoizeServerPort;
 
   if (!opts || !opts.apiKey) {
     throw new Error('createWordnok is missing the Wordnik API key.');
   }
-  if (opts && opts.logger) {
-    logger = opts.logger;
+  if (opts) {
+    if (opts.logger) {
+      logger = opts.logger;
+    }
+    if (opts.request) {
+      request = opts.request;
+    }
+    if (opts.memoizeServerPort) {
+      memoizeServerPort = opts.memoizeServerPort;
+    }
   }
 
   var isCool = createIsCool({
@@ -135,13 +159,34 @@ function createWordnok(opts) {
     return parsed;
   }
 
-  return {
+  var wordnok = {
     getTopic: getTopic,
     getPartsOfSpeechForMultipleWords: getPartsOfSpeechForMultipleWords,
     getPartsOfSpeech: getPartsOfSpeech,
     getWordFrequency: getWordFrequency,
     getWordFrequencies: getWordFrequencies
   };
+
+  var nonDeterministicMethods = [
+    'getTopic'
+  ];
+
+  if (memoizeServerPort) {
+    for (method in wordnok) {
+      if (nonDeterministicMethods.indexOf(method) === -1) {
+        wordnok[method] = multilevelCacheTools.client.memoize({
+          fn: wordnok[method],
+          port: memoizeServerPort
+        });
+      }
+    }
+  }
+
+  return wordnok;
 }
 
-module.exports = createWordnok;
+module.exports = {
+  createWordnok: createWordnok,
+  startCacheServer: startCacheServer
+};
+
