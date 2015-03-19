@@ -5,6 +5,23 @@ var isJSON = require('./isjson');
 var createIsCool = require('iscool');
 var multilevelCacheTools = require('multilevel-cache-tools');
 
+var randomWordsQueryParams = {
+  hasDictionaryDef: false,
+  includePartOfSpeech: 'noun',
+  minCorpusCount: 250,
+  maxCorpusCount: -1,
+  minDictionaryCount: 1,
+  maxDictionaryCount: -1,
+  minLength: 5,
+  maxLength: -1,
+  limit: 10
+};
+
+var nonDeterministicMethods = [
+  'getTopic',
+  'getRandomWords'
+];
+
 function startCacheServer(opts, done) {
   multilevelCacheTools.server.create(
     {
@@ -84,6 +101,37 @@ function createWordnok(opts) {
     });
   }
 
+  function getRandomWords(randomWordsOpts, done) {
+    var customParams = {};
+    if (randomWordsOpts && randomWordsOpts.customParams) {
+      customParams = randomWordsOpts.customParams;
+    }
+    customParams.api_key = opts.apiKey;
+
+    request(
+      {
+        url: 'http://api.wordnik.com:80/v4/words.json/randomWords',
+        qs: _.defaults(customParams, randomWordsQueryParams)
+      },
+      parseWordnikReply
+    );
+
+    function parseWordnikReply(error, response, body) {
+      if (error) {
+        done(error);
+      }
+      else {
+        var parsed = parseBody(body, response.url);
+        var words;
+        if (parsed && Array.isArray(parsed)) {
+          words = _.pluck(parsed, 'word');
+          words = words.filter(isCool);
+        }
+        done(error, words);
+      }
+    }
+  }
+
   function getPartsOfSpeech(word, done) {
     var url = wordURLPrefix + encodeURIComponent(word) + partOfSpeechURLPostfix;
     request(url, function parseReply(error, response, body) {
@@ -161,15 +209,12 @@ function createWordnok(opts) {
 
   var wordnok = {
     getTopic: getTopic,
+    getRandomWords: getRandomWords,
     getPartsOfSpeechForMultipleWords: getPartsOfSpeechForMultipleWords,
     getPartsOfSpeech: getPartsOfSpeech,
     getWordFrequency: getWordFrequency,
     getWordFrequencies: getWordFrequencies
   };
-
-  var nonDeterministicMethods = [
-    'getTopic'
-  ];
 
   if (memoizeServerPort) {
     for (method in wordnok) {
@@ -189,4 +234,3 @@ module.exports = {
   createWordnok: createWordnok,
   startCacheServer: startCacheServer
 };
-

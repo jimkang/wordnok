@@ -25,6 +25,20 @@ test('Get a topic via Wordnik',
   }
 );
 
+test('Get random words via Wordnik', 
+  function testRandomWords(t) {
+    t.plan(3)
+    var wordnok = setUpWordnok();
+
+    wordnok.getRandomWords(null, function checkWords(error, words) {
+      t.ok(!error, 'Shouldn\'t get error.');
+      t.equal(typeof words, 'string');
+      t.ok(words.length > 0);
+      // console.log(words);
+    });
+  }
+);
+
 test('Get parts of speech from Wordnik', function testGetPartsOfSpeech(t) {
   t.plan(2);
   var wordnok = setUpWordnok();
