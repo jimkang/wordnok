@@ -250,6 +250,29 @@ test('Get related words', function testRelatedWords(t) {
   );
 });
 
+test('Error when Wordnik response cannot be parsed', function parseError(t) {
+  t.plan(1);
+
+  var wordnok = createWordnok({
+    apiKey: config.wordnikAPIKey,
+    request: function mockRequest(url, done) {
+      callBackOnNextTick(
+        done, null, null,
+        '<html><body><h1>503 Service Unavailable</h1>\nNo server is available to handle this request.\n</body></html>'
+      );
+    }
+  });
+
+  wordnok.getPartsOfSpeech('students', checkResult);
+
+  function checkResult(error) {
+    t.equal(
+      error.message.indexOf('Received unparseable response from '),
+      0,
+      'Should get error about unparseable response.'
+    );
+  }
+});
 
 test('Use memoized cache server', function memoized(t) {
   // WARNING: This test does not terminate. You have to ctrl+C it.

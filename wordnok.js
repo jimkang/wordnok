@@ -94,9 +94,12 @@ function createWordnok(opts) {
         done(error);
       }
       else {
-        var parsed = parseBody(body, randomWordURL);
-        if (parsed && isCool(parsed.word)) {
-          done(error, parsed.word);
+        var parseResults = parseBody(body, randomWordURL);
+        if (parseResults.error) {
+          done(parseResults.error);
+        }
+        else if (parseResults.parsed && isCool(parseResults.parsed.word)) {
+          done(error, parseResults.parsed.word);
         }
         else {
           // Try again.
@@ -126,13 +129,16 @@ function createWordnok(opts) {
         done(error);
       }
       else {
-        var parsed = parseBody(body, response.url);
+        var parseResults = parseBody(body, response.url);
         var words;
-        if (parsed && Array.isArray(parsed)) {
-          words = _.pluck(parsed, 'word');
-          words = words.filter(isCool);
+        if (parseResults.error) {
+          done(error);
         }
-        done(error, words);
+        else if (parseResults.parsed && Array.isArray(parseResults.parsed)) {
+          words = _.pluck(parseResults.parsed, 'word');
+          words = words.filter(isCool);
+          done(error, words);
+        }
       }
     }
   }
@@ -145,12 +151,12 @@ function createWordnok(opts) {
       }
       else {
         var partOfSpeech = null;
-        var parsed = parseBody(body, url);
-        if (parsed) {
-          done(null, _.compact(_.pluck(parsed, 'partOfSpeech')));
+        var parseResults = parseBody(body, url);
+        if (parseResults.error) {
+          done(parseResults.error);
         }
         else {
-          done('Invalid JSON from ' + url);
+          done(null, _.compact(_.pluck(parseResults.parsed, 'partOfSpeech')));
         }
       }
     });
@@ -165,19 +171,19 @@ function createWordnok(opts) {
       }
       else {
         var totalCount = 9999999;
-        var parsed = parseBody(body, url);
-        if (parsed) {
-          if (typeof parsed.totalCount === 'number') {
-            totalCount = parsed.totalCount;
+        var parseResults = parseBody(body, url);
+        if (parseResults.error) {
+          done(parseResults.error);
+        }
+        else {
+          if (typeof parseResults.parsed.totalCount === 'number') {
+            totalCount = parseResults.parsed.totalCount;
           }
           else {
             logger.log('Got word frequency body without totalCount in it for:',
               word);
           }
           done(error, totalCount);
-        }
-        else {
-          done('Invalid JSON from ' + url);
         }
       }
     });
@@ -216,10 +222,13 @@ function createWordnok(opts) {
         done(error);
       }
       else {
-        var parsed = parseBody(body, response.url);
+        var parseResults = parseBody(body, response.url);
         var wordDict;
-        if (Array.isArray(parsed)) {
-          wordDict = arrangeRelatedWordsResponse(parsed);
+        if (parseResults.error) {
+          done(parseResults.error);
+        }
+        else if (Array.isArray(parseResults.parsed)) {
+          wordDict = arrangeRelatedWordsResponse(parseResults.parsed);
         }
         done(error, wordDict);
       }
@@ -244,14 +253,19 @@ function createWordnok(opts) {
 
   function parseBody(body, url) {
     var parsed;
+    var error;
+
     if (isJSON(body)) {
       parsed = JSON.parse(body);
     }
     else {
       logger.log('Could not parse JSON from', url, body);
-      error = 'Invalid JSON from ' + url;
+      error = new Error('Received unparseable response from ' + url);
     }
-    return parsed;
+    return {
+      parsed: parsed,
+      error: error
+    };
   }
 
   var wordnok = {
