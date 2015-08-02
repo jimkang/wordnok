@@ -280,16 +280,20 @@ function createWordnok(opts) {
 
   if (memoizeServerPort) {
     for (method in wordnok) {
-      if (nonDeterministicMethods.indexOf(method) === -1) {
-        wordnok[method] = multilevelCacheTools.client.memoize({
-          fn: wordnok[method],
-          port: memoizeServerPort
-        });
-      }
+      makeMemoizeClientForMethod(wordnok, memoizeServerPort, method);
     }
   }
 
   return wordnok;
+}
+
+function makeMemoizeClientForMethod(wordnok, memoizeServerPort, method) {
+  if (nonDeterministicMethods.indexOf(method) === -1) {
+    wordnok[method] = multilevelCacheTools.client.memoize({
+      fn: wordnok[method],
+      port: memoizeServerPort
+    });
+  }
 }
 
 function arrangeRelatedWordsResponse(wordnikArray) {
