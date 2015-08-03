@@ -11,3 +11,6 @@ start-server:
 
 stop-server:
 	$(PM2) stop wordnok-cache || echo "Didn't need to stop process."
+
+pushall:
+	git push origin master && npm publish

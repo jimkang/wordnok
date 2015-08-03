@@ -1,6 +1,6 @@
 {
   "name": "wordnok",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Wrapper that gets nouns, frequencies, and parts of speech from the Wordnik REST API.",
   "main": "wordnok.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "conform-async": "^1.1.1",
     "iscool": "^1.0.9",
     "lodash": "^2.4.1",
-    "multilevel-cache-tools": "^1.0.0",
+    "multilevel-cache-tools": "^2.0.0",
     "pm2": "^0.12.8",
     "queue-async": "^1.0.7",
     "request": "^2.51.0"

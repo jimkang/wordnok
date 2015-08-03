@@ -44,6 +44,7 @@ function createWordnok(opts) {
   var logger = console;
   var request = requestModule;
   var memoizeServerPort;
+  var respondToDisconnect;
 
   if (!opts || !opts.apiKey) {
     throw new Error('createWordnok is missing the Wordnik API key.');
@@ -57,6 +58,9 @@ function createWordnok(opts) {
     }
     if (opts.memoizeServerPort) {
       memoizeServerPort = opts.memoizeServerPort;
+    }
+    if (opts.respondToDisconnect) {
+      respondToDisconnect = opts.respondToDisconnect;
     }
   }
 
@@ -280,21 +284,23 @@ function createWordnok(opts) {
 
   if (memoizeServerPort) {
     for (method in wordnok) {
-      makeMemoizeClientForMethod(wordnok, memoizeServerPort, method);
+      makeMemoizeClientForMethod(method);
+    }
+  }
+
+  function makeMemoizeClientForMethod(method) {
+    if (nonDeterministicMethods.indexOf(method) === -1) {
+      wordnok[method] = multilevelCacheTools.client.memoize({
+        fn: wordnok[method],
+        port: memoizeServerPort,
+        onDisconnect: respondToDisconnect
+      });
     }
   }
 
   return wordnok;
 }
 
-function makeMemoizeClientForMethod(wordnok, memoizeServerPort, method) {
-  if (nonDeterministicMethods.indexOf(method) === -1) {
-    wordnok[method] = multilevelCacheTools.client.memoize({
-      fn: wordnok[method],
-      port: memoizeServerPort
-    });
-  }
-}
 
 function arrangeRelatedWordsResponse(wordnikArray) {
   var dict = {};
