@@ -44,7 +44,7 @@ function createWordnok(opts) {
   var logger = console;
   var request = requestModule;
   var memoizeServerPort;
-  var respondToDisconnect;
+  var onDisconnect;
 
   if (!opts || !opts.apiKey) {
     throw new Error('createWordnok is missing the Wordnik API key.');
@@ -59,8 +59,8 @@ function createWordnok(opts) {
     if (opts.memoizeServerPort) {
       memoizeServerPort = opts.memoizeServerPort;
     }
-    if (opts.respondToDisconnect) {
-      respondToDisconnect = opts.respondToDisconnect;
+    if (opts.onDisconnect) {
+      onDisconnect = opts.onDisconnect;
     }
   }
 
@@ -293,7 +293,7 @@ function createWordnok(opts) {
       wordnok[method] = multilevelCacheTools.client.memoize({
         fn: wordnok[method],
         port: memoizeServerPort,
-        onDisconnect: respondToDisconnect
+        onDisconnect: onDisconnect
       });
     }
   }
