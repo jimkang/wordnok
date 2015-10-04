@@ -28,7 +28,6 @@
     "conform-async": "^1.1.1",
     "iscool": "^1.0.9",
     "lodash": "^2.4.1",
-    "multilevel-cache-tools": "^2.0.0",
     "pm2": "^0.12.8",
     "queue-async": "^1.0.7",
     "request": "^2.51.0"

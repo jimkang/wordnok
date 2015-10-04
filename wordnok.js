@@ -3,7 +3,6 @@ var _ = require('lodash');
 var queue = require('queue-async');
 var isJSON = require('./isjson');
 var createIsCool = require('iscool');
-var multilevelCacheTools = require('multilevel-cache-tools');
 
 var randomWordsQueryParams = {
   hasDictionaryDef: false,
@@ -27,24 +26,9 @@ var nonDeterministicMethods = [
   'getRandomWords'
 ];
 
-function startCacheServer(opts, done) {
-  multilevelCacheTools.server.create(
-    {
-      dbPath: opts.dbPath,
-      port: opts.port
-    },
-    function onStart() {
-      console.log('Cache server started at port ' + opts.port + '.');
-      done();
-    }
-  );
-}
-
 function createWordnok(opts) {
   var logger = console;
   var request = requestModule;
-  var memoizeServerPort;
-  var onDisconnect;
 
   if (!opts || !opts.apiKey) {
     throw new Error('createWordnok is missing the Wordnik API key.');
@@ -55,12 +39,6 @@ function createWordnok(opts) {
     }
     if (opts.request) {
       request = opts.request;
-    }
-    if (opts.memoizeServerPort) {
-      memoizeServerPort = opts.memoizeServerPort;
-    }
-    if (opts.onDisconnect) {
-      onDisconnect = opts.onDisconnect;
     }
   }
 
@@ -282,22 +260,6 @@ function createWordnok(opts) {
     getRelatedWords: getRelatedWords
   };
 
-  if (memoizeServerPort) {
-    for (method in wordnok) {
-      makeMemoizeClientForMethod(method);
-    }
-  }
-
-  function makeMemoizeClientForMethod(method) {
-    if (nonDeterministicMethods.indexOf(method) === -1) {
-      wordnok[method] = multilevelCacheTools.client.memoize({
-        fn: wordnok[method],
-        port: memoizeServerPort,
-        onDisconnect: onDisconnect
-      });
-    }
-  }
-
   return wordnok;
 }
 
@@ -312,6 +274,5 @@ function arrangeRelatedWordsResponse(wordnikArray) {
 }
 
 module.exports = {
-  createWordnok: createWordnok,
-  startCacheServer: startCacheServer
+  createWordnok: createWordnok
 };
