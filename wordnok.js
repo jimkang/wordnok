@@ -70,6 +70,10 @@ function createWordnok(opts) {
     'endYear=2012&' +
     'api_key=' + opts.apiKey;
 
+  var canonicalizeURLPostfix = '?useCanonical=true&' +
+    'includeSuggestions=false&' +
+    'api_key=' + opts.apiKey;
+
   function getTopic(done) {
     request(randomWordURL, function parseWordnikReply(error, response, body) {
       if (error) {
@@ -233,6 +237,32 @@ function createWordnok(opts) {
     runOperationOverWords(getWordFrequency, words, done);
   }
 
+  function canonicalize(opts, done) {
+    var word;
+    if (opts) {
+      word = opts.word;
+    }
+
+    var url = wordURLPrefix + encodeURIComponent(word) + canonicalizeURLPostfix;
+    request(url, parseReply);
+
+    function parseReply(error, response, body) {
+      debugger;
+      if (error) {
+        done(error);
+      }
+      else {
+        var parseResults = parseBody(body, url);
+        if (parseResults.error) {
+          done(parseResults.error);
+        }
+        else {
+          done(error, parseResults.parsed.word);
+        }
+      }
+    }
+  }
+
   function parseBody(body, url) {
     var parsed;
     var error;
@@ -257,7 +287,8 @@ function createWordnok(opts) {
     getPartsOfSpeech: getPartsOfSpeech,
     getWordFrequency: getWordFrequency,
     getWordFrequencies: getWordFrequencies,
-    getRelatedWords: getRelatedWords
+    getRelatedWords: getRelatedWords,
+    canonicalize: canonicalize
   };
 
   return wordnok;
