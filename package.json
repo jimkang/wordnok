@@ -1,6 +1,6 @@
 {
   "name": "wordnok",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Wrapper that gets nouns, frequencies, and parts of speech from the Wordnik REST API.",
   "main": "wordnok.js",
   "scripts": {
