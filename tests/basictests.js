@@ -76,70 +76,7 @@ test('Get parts of multiple parts speech', function testMultiPartsOfSpeech(t) {
     function checkResult(error, parts) {
       t.ok(!error, 'Shouldn\'t get error.');
       t.deepEqual(parts, 
-        [
-          [
-              'noun-possessive'
-          ],
-          [
-              'noun'
-          ],
-          [
-            'verb-transitive',
-            'verb-transitive',
-            'verb-transitive',
-            'verb-transitive'
-          ],
-          [
-            'definite-article',
-            'definite-article',
-            'definite-article',
-            'definite-article'
-          ],
-          [
-            'noun',
-            'noun',
-            'noun',
-            'noun'
-          ],
-          [
-            'auxiliary-verb',
-            'auxiliary-verb',
-            'auxiliary-verb'
-          ],
-          [
-            'verb-intransitive',
-            'verb-intransitive',
-            'verb-intransitive',
-            'verb-intransitive'
-          ],
-          [
-            'noun',
-            'noun',
-            'noun',
-            'noun'
-          ],
-          [
-            'proper-noun',
-            'proper-noun'
-          ],
-          [
-            'proper-noun',
-            'proper-noun',
-            'proper-noun'
-          ],
-          [
-            'adjective'
-          ],
-          [                  
-          ],
-          [
-            'adverb',
-            'adverb'
-          ],
-          [
-            'noun', 'verb'
-          ]
-        ]
+        [ [ 'noun-possessive' ], [ 'noun' ], [ 'verb-transitive', 'verb-transitive', 'verb-transitive', 'verb-transitive', 'verb-transitive', 'verb-intransitive' ], [ 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'adverb', 'adverb', 'adverb' ], [ 'noun', 'noun', 'noun', 'noun', 'noun' ], [ 'auxiliary-verb', 'auxiliary-verb', 'auxiliary-verb' ], [ 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'auxiliary-verb', 'auxiliary-verb', 'auxiliary-verb', 'auxiliary-verb' ], [ 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'idiom', 'indefinite-article', 'indefinite-article', 'indefinite-article', 'indefinite-article', 'indefinite-article', 'indefinite-article', 'preposition', 'auxiliary-verb', 'abbreviation', 'abbreviation' ], [ 'proper-noun', 'proper-noun' ], [ 'proper-noun', 'proper-noun', 'proper-noun' ], [ 'adjective' ], [], [ 'adverb', 'adverb' ], [ 'noun', 'verb' ] ]
       );
       // console.log(parts);
     }

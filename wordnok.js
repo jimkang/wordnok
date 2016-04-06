@@ -58,7 +58,6 @@ function createWordnok(opts) {
   var wordURLPrefix = 'http://api.wordnik.com:80/v4/word.json/';
 
   var partOfSpeechURLPostfix = '/definitions?' + 
-    'limit=4&' +
     'includeRelated=false&' + 
     'useCanonical=false&' + 
     'includeTags=false&' + 
