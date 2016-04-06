@@ -75,8 +75,9 @@ test('Get parts of multiple parts speech', function testMultiPartsOfSpeech(t) {
     ],
     function checkResult(error, parts) {
       t.ok(!error, 'Shouldn\'t get error.');
-      t.deepEqual(parts, 
-        [ [ 'noun-possessive' ], [ 'noun' ], [ 'verb-transitive', 'verb-transitive', 'verb-transitive', 'verb-transitive', 'verb-transitive', 'verb-intransitive' ], [ 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'definite-article', 'adverb', 'adverb', 'adverb' ], [ 'noun', 'noun', 'noun', 'noun', 'noun' ], [ 'auxiliary-verb', 'auxiliary-verb', 'auxiliary-verb' ], [ 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'verb-intransitive', 'auxiliary-verb', 'auxiliary-verb', 'auxiliary-verb', 'auxiliary-verb' ], [ 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'noun', 'idiom', 'indefinite-article', 'indefinite-article', 'indefinite-article', 'indefinite-article', 'indefinite-article', 'indefinite-article', 'preposition', 'auxiliary-verb', 'abbreviation', 'abbreviation' ], [ 'proper-noun', 'proper-noun' ], [ 'proper-noun', 'proper-noun', 'proper-noun' ], [ 'adjective' ], [], [ 'adverb', 'adverb' ], [ 'noun', 'verb' ] ]
+      t.deepEqual(
+        parts, 
+        [ [ 'noun-possessive' ], [ 'noun' ], [ 'verb-transitive', 'verb-intransitive' ], [ 'definite-article', 'adverb' ], [ 'noun' ], [ 'auxiliary-verb' ], [ 'verb-intransitive', 'auxiliary-verb' ], [ 'noun', 'idiom', 'indefinite-article', 'preposition', 'auxiliary-verb', 'abbreviation' ], [ 'proper-noun' ], [ 'proper-noun' ], [ 'adjective' ], [], [ 'adverb' ], [ 'noun', 'verb' ] ]
       );
       // console.log(parts);
     }

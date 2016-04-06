@@ -141,7 +141,7 @@ function createWordnok(opts) {
           done(parseResults.error);
         }
         else {
-          done(null, _.compact(_.pluck(parseResults.parsed, 'partOfSpeech')));
+          done(null, _.uniq(_.compact(_.pluck(parseResults.parsed, 'partOfSpeech'))));
         }
       }
     });
