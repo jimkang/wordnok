@@ -211,3 +211,44 @@ test('Error when Wordnik response cannot be parsed', function parseError(t) {
     );
   }
 });
+
+test('Get simple definitions', testGetDefinitions);
+test('Get complex definitions', testGetComplexDefinitions);
+
+function testGetDefinitions(t) {
+  var wordnok = setUpWordnok();
+
+  wordnok.getDefinitions({word: 'surtout'}, checkDefinitions);
+
+  function checkDefinitions(error, definitions) {
+    t.ok(!error, 'Shouldn\'t get error.');
+    t.ok(definitions.length > 0);
+    t.equal(definitions[0], 'A man\'s overcoat.', 'First definition is correct.');
+    console.log(definitions[0]);
+    t.end();
+  }
+}
+
+function testGetComplexDefinitions(t) {
+  var wordnok = setUpWordnok();
+
+  wordnok.getDefinitions({word: 'dog', partOfSpeech: 'noun'}, checkDefinitions);
+
+  function checkDefinitions(error, definitions) {
+    t.ok(!error, 'Shouldn\'t get error.');
+    t.ok(definitions.length > 0);
+    // console.log(definitions);
+
+    definitions.forEach(checkDefinition);
+    t.end();
+  }
+
+  function checkDefinition(definition) {
+    t.ok(definition.length > 0, 'Definition is not empty.');
+    t.ok(
+      !(definition.match(/\w+   /)) || definition.match(/\w+   /).index !== 0,
+      'Does not start with "[Classification]   ".'
+    );
+    t.ok(definition.indexOf('See ') !== 0, 'Does not start with "See ".');
+  }
+}

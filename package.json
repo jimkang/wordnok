@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/jimkang/wordnok",
   "devDependencies": {
-    "tape": "^3.0.3"
+    "tape": "^4.6.3"
   },
   "dependencies": {
     "conform-async": "^1.1.1",

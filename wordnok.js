@@ -4,6 +4,8 @@ var queue = require('queue-async');
 var isJSON = require('./isjson');
 var createIsCool = require('iscool');
 
+var definitionClassificationPrefixRegex = /\w+   /;
+
 var randomWordsQueryParams = {
   hasDictionaryDef: false,
   includePartOfSpeech: 'noun',
@@ -19,6 +21,12 @@ var randomWordsQueryParams = {
 var relatedWordsQueryParams = {
   useCanonical: true,
   limitPerRelationshipType: 10
+};
+
+var getDefinitionsQueryParams = {
+  useCanonical: false,
+  limit: 10,
+  includeRelated: false
 };
 
 var nonDeterministicMethods = [
@@ -129,6 +137,7 @@ function createWordnok(opts) {
   }
 
   function getPartsOfSpeech(word, done) {
+    // TODO: support custom params so that specific dictionaries can be specified.
     var url = wordURLPrefix + encodeURIComponent(word) + partOfSpeechURLPostfix;
     request(url, function parseReply(error, response, body) {
       if (error) {
@@ -180,7 +189,6 @@ function createWordnok(opts) {
       customParams = relatedWordsOpts.customParams;
     }
     var word;
-    var customParams = {};
 
     if (relatedWordsOpts) {
       if (relatedWordsOpts.customParams) {
@@ -262,6 +270,52 @@ function createWordnok(opts) {
     }
   }
 
+  function getDefinitions(definitionOpts, done) {
+    var customParams = {};
+
+    if (definitionOpts && definitionOpts.customParams) {
+      customParams = definitionOpts.customParams;
+    }
+    var word = definitionOpts.word;
+
+    if (!word) {
+      done(new Error('No word provided to getDefinitions.'));
+      return;
+    }
+
+    customParams.api_key = opts.apiKey;
+
+    request(
+      {
+        url: 'http://api.wordnik.com:80/v4/word.json/' + word + '/definitions',
+        qs: _.defaults(customParams, getDefinitionsQueryParams)
+      },
+      parseWordnikReply
+    );
+
+    function parseWordnikReply(error, response, body) {
+      if (error) {
+        done(error);
+      }
+      else {
+        var parseResults = parseBody(body, response.url);
+        var definitions;
+        if (parseResults.error) {
+          done(parseResults.error);
+          return;
+        }
+
+        if (Array.isArray(parseResults.parsed)) {
+          // wordDict = arrangeRelatedWordsResponse(parseResults.parsed);
+          definitions = _.pluck(parseResults.parsed, 'text')
+            .filter(definitionIsUsable)
+            .map(removeDefinitionClassificationPrefix);
+        }
+        done(error, definitions);
+      }
+    }
+  }
+
   function parseBody(body, url) {
     var parsed;
     var error;
@@ -287,7 +341,8 @@ function createWordnok(opts) {
     getWordFrequency: getWordFrequency,
     getWordFrequencies: getWordFrequencies,
     getRelatedWords: getRelatedWords,
-    canonicalize: canonicalize
+    canonicalize: canonicalize,
+    getDefinitions: getDefinitions
   };
 
   return wordnok;
@@ -301,6 +356,20 @@ function arrangeRelatedWordsResponse(wordnikArray) {
     dict[group.relationshipType] = group.words;
   });
   return dict;
+}
+
+function definitionIsUsable(definition) {
+  return definition.indexOf('See ') !== 0;
+}
+
+function removeDefinitionClassificationPrefix(definition) {
+  var prefixLocation = definition.match(definitionClassificationPrefixRegex);
+  if (prefixLocation && prefixLocation.index === 0) {
+    return definition.replace(definitionClassificationPrefixRegex, '');
+  }
+  else {
+    return definition;
+  }
 }
 
 module.exports = {
