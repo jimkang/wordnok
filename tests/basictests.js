@@ -1,7 +1,6 @@
 var test = require('tape');
 var wordnokLib = require('../wordnok');
 var createWordnok = wordnokLib.createWordnok;
-var startCacheServer = wordnokLib.startCacheServer;
 var config = require('../config');
 var callBackOnNextTick = require('conform-async').callBackOnNextTick;
 
@@ -13,7 +12,7 @@ function setUpWordnok() {
 
 test('Get a topic via Wordnik', 
   function testWordnik(t) {
-    t.plan(3)
+    t.plan(3);
     var wordnok = setUpWordnok();
 
     wordnok.getTopic(function checkTopic(error, topic) {
@@ -27,7 +26,7 @@ test('Get a topic via Wordnik',
 
 test('Get random words via Wordnik', 
   function testRandomWords(t) {
-    t.plan(3)
+    t.plan(3);
     var wordnok = setUpWordnok();
 
     wordnok.getRandomWords(null, function checkWords(error, words) {
@@ -145,35 +144,35 @@ test('Get related words', function testRelatedWords(t) {
 
   var expectedDictionary = {
     hypernym: [
-      "aggressor",
-      "attacker",
-      "assailant",
-      "assaulter"
+      'aggressor',
+      'attacker',
+      'assailant',
+      'assaulter'
     ],
     hyponym: [
-      "bullyboy",
-      "muscle",
-      "tough guy",
-      "skinhead",
-      "plug-ugly",
-      "muscleman"
+      'bullyboy',
+      'muscle',
+      'tough guy',
+      'skinhead',
+      'plug-ugly',
+      'muscleman'
     ],
     synonym: [
-      "chav",
-      "tearaway",
-      "hooligan"
+      'chav',
+      'tearaway',
+      'hooligan'
     ],
-    "same-context": [
-      "choked-off",
-      "ftu",
-      "newsies",
-      "typographic",
-      "afterall",
-      "hed",
-      "half-animal",
-      "oxy-",
-      "goalmouth",
-      "??"
+    'same-context': [
+      'choked-off',
+      'ftu',
+      'newsies',
+      'typographic',
+      'afterall',
+      'hed',
+      'half-animal',
+      'oxy-',
+      'goalmouth',
+      '??'
     ]
   };
 
@@ -246,7 +245,7 @@ function testGetComplexDefinitions(t) {
   function checkDefinition(definition) {
     t.ok(definition.length > 0, 'Definition is not empty.');
     t.ok(
-      !(definition.match(/\w+   /)) || definition.match(/\w+   /).index !== 0,
+      !(definition.match(/\w+\s\s\s/)) || definition.match(/\w+\s\s\s/).index !== 0,
       'Does not start with "[Classification]   ".'
     );
     t.ok(definition.indexOf('See ') !== 0, 'Does not start with "See ".');

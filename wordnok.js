@@ -4,7 +4,7 @@ var queue = require('queue-async');
 var isJSON = require('./isjson');
 var createIsCool = require('iscool');
 
-var definitionClassificationPrefixRegex = /\w+   /;
+var definitionClassificationPrefixRegex = /\w+\s\s\s/;
 
 var randomWordsQueryParams = {
   hasDictionaryDef: false,
@@ -28,11 +28,6 @@ var getDefinitionsQueryParams = {
   limit: 10,
   includeRelated: false
 };
-
-var nonDeterministicMethods = [
-  'getTopic',
-  'getRandomWords'
-];
 
 function createWordnok(opts) {
   var logger = console;
@@ -144,7 +139,6 @@ function createWordnok(opts) {
         done(error);
       }
       else {
-        var partOfSpeech = null;
         var parseResults = parseBody(body, url);
         if (parseResults.error) {
           done(parseResults.error);
@@ -198,7 +192,7 @@ function createWordnok(opts) {
     }
 
     if (!word) {
-      throw new Error('No word provided to getRelatedWords.')
+      throw new Error('No word provided to getRelatedWords.');
     }
     customParams.api_key = opts.apiKey;
 
@@ -254,7 +248,6 @@ function createWordnok(opts) {
     request(url, parseReply);
 
     function parseReply(error, response, body) {
-      debugger;
       if (error) {
         done(error);
       }

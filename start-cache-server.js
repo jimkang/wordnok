@@ -6,6 +6,6 @@ multilevelCacheTools.server.create(
     port: 3030
   },
   function done() {
-    console.log('Cache server started at port 3030.')
+    console.log('Cache server started at port 3030.');
   }
 );
