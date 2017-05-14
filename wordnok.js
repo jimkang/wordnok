@@ -1,6 +1,6 @@
 var requestModule = require('request');
 var _ = require('lodash');
-var queue = require('queue-async');
+var queue = require('d3-queue').queue;
 var isJSON = require('./isjson');
 var createIsCool = require('iscool');
 
