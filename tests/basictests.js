@@ -263,3 +263,34 @@ function testGetComplexDefinitions(t) {
     t.ok(definition.indexOf('See ') !== 0, 'Does not start with "See ".');
   }
 }
+
+test('Error when Wordnik response contains an error message', function handleErrorMessage(
+  t
+) {
+  t.plan(1);
+
+  var wordnok = createWordnok({
+    apiKey: config.wordnikAPIKey,
+    request: function mockRequest(url, done) {
+      callBackOnNextTick(
+        done,
+        null,
+        null,
+        JSON.stringify({
+          type: 'error',
+          message: 'exceeded access limits'
+        })
+      );
+    }
+  });
+
+  wordnok.getTopic(checkResult);
+
+  function checkResult(error) {
+    t.equal(
+      error.message.indexOf('exceeded access limits'),
+      0,
+      'Should get error that passes the error from the response.'
+    );
+  }
+});

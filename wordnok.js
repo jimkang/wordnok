@@ -5,6 +5,7 @@ var isJSON = require('./isjson');
 var createIsCool = require('iscool');
 
 var definitionClassificationPrefixRegex = /\w+\s\s\s/;
+const getTopicTryLimit = 10;
 
 var randomWordsQueryParams = {
   hasDictionaryDef: false,
@@ -85,21 +86,30 @@ function createWordnok(opts) {
     opts.apiKey;
 
   function getTopic(done) {
-    request(randomWordURL, function parseWordnikReply(error, response, body) {
+    var tries = 0;
+
+    request(randomWordURL, parseWordnikReply);
+
+    function parseWordnikReply(error, response, body) {
+      tries += 1;
       if (error) {
         done(error);
       } else {
         var parseResults = parseBody(body, randomWordURL);
-        if (parseResults.error) {
-          done(parseResults.error);
-        } else if (parseResults.parsed && isCool(parseResults.parsed.word)) {
+        debugger;
+        if (parseResults.parsed && parseResults.parsed.type === 'error') {
+          done(new Error(parseResults.parsed.message));
+        } else if (parseResults.parsed && parseResults.parsed.word && isCool(parseResults.parsed.word)) {
           done(error, parseResults.parsed.word);
-        } else {
+        } else if (tries < getTopicTryLimit) {
           // Try again.
-          getTopic(done);
+          request(randomWordURL, parseWordnikReply);
+        } else {
+          debugger;
+          done(new Error(`Could not get a topic in ${getTopicTryLimit} tries.`));
         }
       }
-    });
+    }
   }
 
   function getRandomWords(randomWordsOpts, done) {
@@ -123,8 +133,8 @@ function createWordnok(opts) {
       } else {
         var parseResults = parseBody(body, response.url);
         var words;
-        if (parseResults.error) {
-          done(error);
+        if (parseResults.parsed.type === 'error') {
+          done(new Error(parseResults.parsed.message));
         } else if (parseResults.parsed && Array.isArray(parseResults.parsed)) {
           words = _.pluck(parseResults.parsed, 'word');
           words = words.filter(isCool);
@@ -213,8 +223,8 @@ function createWordnok(opts) {
       } else {
         var parseResults = parseBody(body, response.url);
         var wordDict;
-        if (parseResults.error) {
-          done(parseResults.error);
+        if (parseResults.parsed.type === 'error') {
+          done(new Error(parseResults.parsed.message));
         } else if (Array.isArray(parseResults.parsed)) {
           wordDict = arrangeRelatedWordsResponse(parseResults.parsed);
         }
@@ -253,8 +263,8 @@ function createWordnok(opts) {
         done(error);
       } else {
         var parseResults = parseBody(body, url);
-        if (parseResults.error) {
-          done(parseResults.error);
+        if (parseResults.parsed.type === 'error') {
+          done(new Error(parseResults.parsed.message));
         } else {
           done(error, parseResults.parsed.word);
         }
@@ -285,14 +295,15 @@ function createWordnok(opts) {
       parseWordnikReply
     );
 
+    // TODO: DRY up all of these parse functions
     function parseWordnikReply(error, response, body) {
       if (error) {
         done(error);
       } else {
         var parseResults = parseBody(body, response.url);
         var definitions;
-        if (parseResults.error) {
-          done(parseResults.error);
+        if (parseResults.parsed.type === 'error') {
+          done(new Error(parseResults.parsed.message));
           return;
         }
 
