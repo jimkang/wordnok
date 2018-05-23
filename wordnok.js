@@ -96,7 +96,6 @@ function createWordnok(opts) {
         done(error);
       } else {
         var parseResults = parseBody(body, randomWordURL);
-        debugger;
         if (parseResults.parsed && parseResults.parsed.type === 'error') {
           done(new Error(parseResults.parsed.message));
         } else if (parseResults.parsed && parseResults.parsed.word && isCool(parseResults.parsed.word)) {
@@ -105,7 +104,6 @@ function createWordnok(opts) {
           // Try again.
           request(randomWordURL, parseWordnikReply);
         } else {
-          debugger;
           done(new Error(`Could not get a topic in ${getTopicTryLimit} tries.`));
         }
       }
