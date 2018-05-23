@@ -28,8 +28,8 @@
   "dependencies": {
     "d3-queue": "^3.0.7",
     "iscool": "^1.1.36",
-    "lodash": "^2.4.1",
+    "lodash": "^4.17.10",
     "queue-async": "^1.0.7",
-    "request": "^2.81.0"
+    "request": "^2.87.0"
   }
 }
