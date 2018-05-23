@@ -49,47 +49,52 @@ function createWordnok(opts) {
     logger: logger
   });
 
-  var randomWordURL = 'http://api.wordnik.com:80/v4/words.json/randomWord?' +
-    'hasDictionaryDef=false&' + 
+  var randomWordURL =
+    'http://api.wordnik.com:80/v4/words.json/randomWord?' +
+    'hasDictionaryDef=false&' +
     'includePartOfSpeech=noun&' +
-    'excludePartOfSpeech=proper-noun&' + 
-    'minCorpusCount=0&maxCorpusCount=-1' + 
-    '&minDictionaryCount=1&maxDictionaryCount=-1&' + 
+    'excludePartOfSpeech=proper-noun&' +
+    'minCorpusCount=0&maxCorpusCount=-1' +
+    '&minDictionaryCount=1&maxDictionaryCount=-1&' +
     'minLength=2&maxLength=120&' +
-    'api_key=' + opts.apiKey;
+    'api_key=' +
+    opts.apiKey;
 
   var wordURLPrefix = 'http://api.wordnik.com:80/v4/word.json/';
 
-  var partOfSpeechURLPostfix = '/definitions?' + 
-    'includeRelated=false&' + 
-    'useCanonical=false&' + 
-    'includeTags=false&' + 
-    'api_key=' + opts.apiKey;
+  var partOfSpeechURLPostfix =
+    '/definitions?' +
+    'includeRelated=false&' +
+    'useCanonical=false&' +
+    'includeTags=false&' +
+    'api_key=' +
+    opts.apiKey;
 
-  var frequencyURLPostfix = '/frequency?' + 
+  var frequencyURLPostfix =
+    '/frequency?' +
     'useCanonical=false&' +
     'startYear=2003&' +
     'endYear=2012&' +
-    'api_key=' + opts.apiKey;
+    'api_key=' +
+    opts.apiKey;
 
-  var canonicalizeURLPostfix = '?useCanonical=true&' +
+  var canonicalizeURLPostfix =
+    '?useCanonical=true&' +
     'includeSuggestions=false&' +
-    'api_key=' + opts.apiKey;
+    'api_key=' +
+    opts.apiKey;
 
   function getTopic(done) {
     request(randomWordURL, function parseWordnikReply(error, response, body) {
       if (error) {
         done(error);
-      }
-      else {
+      } else {
         var parseResults = parseBody(body, randomWordURL);
         if (parseResults.error) {
           done(parseResults.error);
-        }
-        else if (parseResults.parsed && isCool(parseResults.parsed.word)) {
+        } else if (parseResults.parsed && isCool(parseResults.parsed.word)) {
           done(error, parseResults.parsed.word);
-        }
-        else {
+        } else {
           // Try again.
           getTopic(done);
         }
@@ -115,14 +120,12 @@ function createWordnok(opts) {
     function parseWordnikReply(error, response, body) {
       if (error) {
         done(error);
-      }
-      else {
+      } else {
         var parseResults = parseBody(body, response.url);
         var words;
         if (parseResults.error) {
           done(error);
-        }
-        else if (parseResults.parsed && Array.isArray(parseResults.parsed)) {
+        } else if (parseResults.parsed && Array.isArray(parseResults.parsed)) {
           words = _.pluck(parseResults.parsed, 'word');
           words = words.filter(isCool);
           done(error, words);
@@ -137,14 +140,15 @@ function createWordnok(opts) {
     request(url, function parseReply(error, response, body) {
       if (error) {
         done(error);
-      }
-      else {
+      } else {
         var parseResults = parseBody(body, url);
         if (parseResults.error) {
           done(parseResults.error);
-        }
-        else {
-          done(null, _.uniq(_.compact(_.pluck(parseResults.parsed, 'partOfSpeech'))));
+        } else {
+          done(
+            null,
+            _.uniq(_.compact(_.pluck(parseResults.parsed, 'partOfSpeech')))
+          );
         }
       }
     });
@@ -156,26 +160,25 @@ function createWordnok(opts) {
       if (error) {
         console.log('getWordFrequency error!');
         done(error);
-      }
-      else {
+      } else {
         var totalCount = 9999999;
         var parseResults = parseBody(body, url);
         if (parseResults.error) {
           done(parseResults.error);
-        }
-        else {
+        } else {
           if (typeof parseResults.parsed.totalCount === 'number') {
             totalCount = parseResults.parsed.totalCount;
-          }
-          else {
-            logger.log('Got word frequency body without totalCount in it for:',
-              word);
+          } else {
+            logger.log(
+              'Got word frequency body without totalCount in it for:',
+              word
+            );
           }
           done(error, totalCount);
         }
       }
     });
-  }  
+  }
 
   function getRelatedWords(relatedWordsOpts, done) {
     var customParams = {};
@@ -207,14 +210,12 @@ function createWordnok(opts) {
     function parseWordnikReply(error, response, body) {
       if (error) {
         done(error);
-      }
-      else {
+      } else {
         var parseResults = parseBody(body, response.url);
         var wordDict;
         if (parseResults.error) {
           done(parseResults.error);
-        }
-        else if (Array.isArray(parseResults.parsed)) {
+        } else if (Array.isArray(parseResults.parsed)) {
           wordDict = arrangeRelatedWordsResponse(parseResults.parsed);
         }
         done(error, wordDict);
@@ -227,7 +228,7 @@ function createWordnok(opts) {
     words.forEach(function addToQueue(word) {
       q.defer(operation, word);
     });
-    q.awaitAll(done);    
+    q.awaitAll(done);
   }
 
   function getPartsOfSpeechForMultipleWords(words, done) {
@@ -250,13 +251,11 @@ function createWordnok(opts) {
     function parseReply(error, response, body) {
       if (error) {
         done(error);
-      }
-      else {
+      } else {
         var parseResults = parseBody(body, url);
         if (parseResults.error) {
           done(parseResults.error);
-        }
-        else {
+        } else {
           done(error, parseResults.parsed.word);
         }
       }
@@ -289,8 +288,7 @@ function createWordnok(opts) {
     function parseWordnikReply(error, response, body) {
       if (error) {
         done(error);
-      }
-      else {
+      } else {
         var parseResults = parseBody(body, response.url);
         var definitions;
         if (parseResults.error) {
@@ -315,8 +313,7 @@ function createWordnok(opts) {
 
     if (isJSON(body)) {
       parsed = JSON.parse(body);
-    }
-    else {
+    } else {
       logger.log('Could not parse JSON from', url, body);
       error = new Error('Received unparseable response from ' + url);
     }
@@ -341,7 +338,6 @@ function createWordnok(opts) {
   return wordnok;
 }
 
-
 function arrangeRelatedWordsResponse(wordnikArray) {
   var dict = {};
   // Assumption: No two array members will have the same relationshipType.
@@ -359,8 +355,7 @@ function removeDefinitionClassificationPrefix(definition) {
   var prefixLocation = definition.match(definitionClassificationPrefixRegex);
   if (prefixLocation && prefixLocation.index === 0) {
     return definition.replace(definitionClassificationPrefixRegex, '');
-  }
-  else {
+  } else {
     return definition;
   }
 }
