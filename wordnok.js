@@ -1,5 +1,8 @@
 var requestModule = require('request');
-var _ = require('lodash');
+var defaults = require('lodash.defaults');
+var pluck = require('lodash.pluck');
+var uniq = require('lodash.uniq');
+var compact = require('lodash.compact');
 var queue = require('d3-queue').queue;
 var isJSON = require('./isjson');
 var createIsCool = require('iscool');
@@ -120,7 +123,7 @@ function createWordnok(opts) {
     request(
       {
         url: 'http://api.wordnik.com:80/v4/words.json/randomWords',
-        qs: _.defaults(customParams, randomWordsQueryParams)
+        qs: defaults(customParams, randomWordsQueryParams)
       },
       parseWordnikReply
     );
@@ -134,7 +137,7 @@ function createWordnok(opts) {
         if (parseResults.parsed.type === 'error') {
           done(new Error(parseResults.parsed.message));
         } else if (parseResults.parsed && Array.isArray(parseResults.parsed)) {
-          words = _.pluck(parseResults.parsed, 'word');
+          words = pluck(parseResults.parsed, 'word');
           words = words.filter(isCool);
           done(error, words);
         }
@@ -155,7 +158,7 @@ function createWordnok(opts) {
         } else {
           done(
             null,
-            _.uniq(_.compact(_.pluck(parseResults.parsed, 'partOfSpeech')))
+            uniq(compact(pluck(parseResults.parsed, 'partOfSpeech')))
           );
         }
       }
@@ -210,7 +213,7 @@ function createWordnok(opts) {
     request(
       {
         url: 'http://api.wordnik.com:80/v4/word.json/' + word + '/relatedWords',
-        qs: _.defaults(customParams, relatedWordsQueryParams)
+        qs: defaults(customParams, relatedWordsQueryParams)
       },
       parseWordnikReply
     );
@@ -288,7 +291,7 @@ function createWordnok(opts) {
     request(
       {
         url: 'http://api.wordnik.com:80/v4/word.json/' + word + '/definitions',
-        qs: _.defaults(customParams, getDefinitionsQueryParams)
+        qs: defaults(customParams, getDefinitionsQueryParams)
       },
       parseWordnikReply
     );
@@ -307,7 +310,7 @@ function createWordnok(opts) {
 
         if (Array.isArray(parseResults.parsed)) {
           // wordDict = arrangeRelatedWordsResponse(parseResults.parsed);
-          definitions = _.pluck(parseResults.parsed, 'text')
+          definitions = pluck(parseResults.parsed, 'text')
             .filter(definitionIsUsable)
             .map(removeDefinitionClassificationPrefix);
         }
