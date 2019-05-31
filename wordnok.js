@@ -11,7 +11,7 @@ var definitionClassificationPrefixRegex = /\w+\s\s\s/;
 const getTopicTryLimit = 10;
 
 var randomWordsQueryParams = {
-  hasDictionaryDef: false,
+  hasDictionaryDef: true,
   includePartOfSpeech: 'noun',
   minCorpusCount: 250,
   maxCorpusCount: -1,
