@@ -55,7 +55,7 @@ function createWordnok(opts) {
 
   var randomWordURL =
     'http://api.wordnik.com:80/v4/words.json/randomWord?' +
-    'hasDictionaryDef=false&' +
+    'hasDictionaryDef=true&' +
     'includePartOfSpeech=noun&' +
     'excludePartOfSpeech=proper-noun&' +
     'minCorpusCount=0&maxCorpusCount=-1' +
