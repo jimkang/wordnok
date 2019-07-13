@@ -101,13 +101,19 @@ function createWordnok(opts) {
         var parseResults = parseBody(body, randomWordURL);
         if (parseResults.parsed && parseResults.parsed.type === 'error') {
           done(new Error(parseResults.parsed.message));
-        } else if (parseResults.parsed && parseResults.parsed.word && isCool(parseResults.parsed.word)) {
+        } else if (
+          parseResults.parsed &&
+          parseResults.parsed.word &&
+          isCool(parseResults.parsed.word)
+        ) {
           done(error, parseResults.parsed.word);
         } else if (tries < getTopicTryLimit) {
           // Try again.
           request(randomWordURL, parseWordnikReply);
         } else {
-          done(new Error(`Could not get a topic in ${getTopicTryLimit} tries.`));
+          done(
+            new Error(`Could not get a topic in ${getTopicTryLimit} tries.`)
+          );
         }
       }
     }
@@ -158,10 +164,7 @@ function createWordnok(opts) {
         if (parseResults.error) {
           done(parseResults.error);
         } else {
-          done(
-            null,
-            uniq(compact(pluck(parseResults.parsed, 'partOfSpeech')))
-          );
+          done(null, uniq(compact(pluck(parseResults.parsed, 'partOfSpeech'))));
         }
       }
     });

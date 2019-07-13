@@ -264,9 +264,7 @@ function testGetComplexDefinitions(t) {
   }
 }
 
-test('Error when Wordnik response contains an error message', function handleErrorMessage(
-  t
-) {
+test('Error when Wordnik response contains an error message', function handleErrorMessage(t) {
   t.plan(1);
 
   var wordnok = createWordnok({
