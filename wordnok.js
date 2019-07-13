@@ -140,6 +140,8 @@ function createWordnok(opts) {
           words = pluck(parseResults.parsed, 'word');
           words = words.filter(isCool);
           done(error, words);
+        } else {
+          done(new Error('getRandomWords could not parse Wordnik reply.'));
         }
       }
     }
@@ -313,6 +315,9 @@ function createWordnok(opts) {
           definitions = pluck(parseResults.parsed, 'text')
             .filter(definitionIsUsable)
             .map(removeDefinitionClassificationPrefix);
+        }
+        if (!definitions) {
+          debugger;
         }
         done(error, definitions);
       }
