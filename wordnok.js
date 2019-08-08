@@ -9,6 +9,7 @@ var createIsCool = require('iscool');
 
 var definitionClassificationPrefixRegex = /\w+\s\s\s/;
 const getTopicTryLimit = 10;
+const retryInterval = 500;
 
 var randomWordsQueryParams = {
   hasDictionaryDef: true,
@@ -54,7 +55,7 @@ function createWordnok(opts) {
   });
 
   var randomWordURL =
-    'http://api.wordnik.com:80/v4/words.json/randomWord?' +
+    'https://api.wordnik.com/v4/words.json/randomWord?' +
     'hasDictionaryDef=true&' +
     'includePartOfSpeech=noun&' +
     'excludePartOfSpeech=proper-noun&' +
@@ -64,7 +65,7 @@ function createWordnok(opts) {
     'api_key=' +
     opts.apiKey;
 
-  var wordURLPrefix = 'http://api.wordnik.com:80/v4/word.json/';
+  var wordURLPrefix = 'https://api.wordnik.com/v4/word.json/';
 
   var partOfSpeechURLPostfix =
     '/definitions?' +
@@ -91,7 +92,11 @@ function createWordnok(opts) {
   function getTopic(done) {
     var tries = 0;
 
-    request(randomWordURL, parseWordnikReply);
+    tryToGetTopic();
+
+    function tryToGetTopic() {
+      request(randomWordURL, parseWordnikReply);
+    }
 
     function parseWordnikReply(error, response, body) {
       tries += 1;
@@ -109,7 +114,7 @@ function createWordnok(opts) {
           done(error, parseResults.parsed.word);
         } else if (tries < getTopicTryLimit) {
           // Try again.
-          request(randomWordURL, parseWordnikReply);
+          setTimeout(tryToGetTopic, retryInterval);
         } else {
           done(
             new Error(`Could not get a topic in ${getTopicTryLimit} tries.`)
@@ -128,7 +133,7 @@ function createWordnok(opts) {
 
     request(
       {
-        url: 'http://api.wordnik.com:80/v4/words.json/randomWords',
+        url: 'https://api.wordnik.com/v4/words.json/randomWords',
         qs: defaults(customParams, randomWordsQueryParams)
       },
       parseWordnikReply
@@ -174,7 +179,7 @@ function createWordnok(opts) {
     var url = wordURLPrefix + encodeURIComponent(word) + frequencyURLPostfix;
     request(url, function parseReply(error, response, body) {
       if (error) {
-        console.log('getWordFrequency error!');
+        logger.log('getWordFrequency error!');
         done(error);
       } else {
         var totalCount = 9999999;
@@ -217,7 +222,7 @@ function createWordnok(opts) {
 
     request(
       {
-        url: 'http://api.wordnik.com:80/v4/word.json/' + word + '/relatedWords',
+        url: 'https://api.wordnik.com/v4/word.json/' + word + '/relatedWords',
         qs: defaults(customParams, relatedWordsQueryParams)
       },
       parseWordnikReply
@@ -295,7 +300,7 @@ function createWordnok(opts) {
 
     request(
       {
-        url: 'http://api.wordnik.com:80/v4/word.json/' + word + '/definitions',
+        url: 'https://api.wordnik.com/v4/word.json/' + word + '/definitions',
         qs: defaults(customParams, getDefinitionsQueryParams)
       },
       parseWordnikReply
@@ -320,7 +325,7 @@ function createWordnok(opts) {
             .map(removeDefinitionClassificationPrefix);
         }
         if (!definitions) {
-          debugger;
+          //debugger;
         }
         done(error, definitions);
       }
