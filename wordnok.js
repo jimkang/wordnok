@@ -152,7 +152,14 @@ function createWordnok(opts) {
           words = words.filter(isCool);
           done(error, words);
         } else {
-          done(new Error('getRandomWords could not parse Wordnik reply.'));
+          done(
+            new Error(
+              'getRandomWords could not parse Wordnik reply. opts:' +
+                JSON.stringify(randomWordsOpts, null, 2) +
+                ' Reply:\n' +
+                body
+            )
+          );
         }
       }
     }
